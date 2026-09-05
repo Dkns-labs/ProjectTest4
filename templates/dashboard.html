@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>ResumeIQ Dashboard</title>
+
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='style.css') }}"
+  >
+
+</head>
+
+
+<body>
+
+
+<!-- HEADER -->
+
+<header>
+
+  <a href="/dashboard" class="logo">
+
+    <div class="logo-icon">
+      RI
+    </div>
+
+    Resume<span>IQ</span>
+
+  </a>
+
+
+  <div class="header-right">
+
+    <span>
+      {{ session["email"] }}
+    </span>
+
+    <a href="/logout" class="login-button">
+      Logout
+    </a>
+
+  </div>
+
+</header>
+
+
+
+<!-- DASHBOARD -->
+
+<main class="dashboard">
+
+
+  <div class="dashboard-title">
+
+    <div class="tag">
+      ✦ AI RESUME ANALYZER
+    </div>
+
+    <h1>
+      Analyze your resume.
+    </h1>
+
+    <p>
+      Paste your resume below and let Gemini
+      find ways to improve it.
+    </p>
+
+  </div>
+
+
+
+  <!-- ANALYZER -->
+
+  <section class="analyzer-box">
+
+    <div class="box-title">
+
+      <div>
+
+        <small>
+          RESUME INPUT
+        </small>
+
+        <h2>
+          Your Resume
+        </h2>
+
+      </div>
+
+      <span>
+        Gemini AI
+      </span>
+
+    </div>
+
+
+    <form method="POST">
+
+      <textarea
+        name="resume_text"
+        placeholder="Paste your resume here...
+
+Example:
+
+John Doe
+Software Developer
+
+Skills:
+Python, HTML, CSS, Flask
+
+Experience:
+..."
+        required
+      ></textarea>
+
+
+      <button class="analyze-button" type="submit">
+        ✦ Analyze Resume
+      </button>
+
+    </form>
+
+  </section>
+
+
+
+  <!-- RESULT -->
+
+  {% if result %}
+
+  <section class="result-box">
+
+    <div class="result-title">
+
+      <div>
+
+        <small>
+          AI RESULT
+        </small>
+
+        <h2>
+          Resume Analysis
+        </h2>
+
+      </div>
+
+      <div class="result-badge">
+        ✓ Complete
+      </div>
+
+    </div>
+
+
+    <div class="result-text">
+      {{ result }}
+    </div>
+
+  </section>
+
+  {% endif %}
+
+
+
+  <!-- HISTORY -->
+
+  <section class="history">
+
+    <div class="section-title">
+
+      <div>
+
+        <small>
+          SAVED ANALYSES
+        </small>
+
+        <h2>
+          Your History
+        </h2>
+
+      </div>
+
+      <span>
+        {{ history|length }} analyses
+      </span>
+
+    </div>
+
+
+    {% if history %}
+
+      {% for item in history %}
+
+      <div class="history-card">
+
+        <div>
+
+          <b>
+            Resume Analysis #{{ item["id"] }}
+          </b>
+
+          <p>
+            {{ item["resume_text"][:120] }}...
+          </p>
+
+        </div>
+
+        <small>
+          {{ item["created_at"] }}
+        </small>
+
+      </div>
+
+      {% endfor %}
+
+    {% else %}
+
+      <div class="empty-history">
+
+        <div>
+          ✦
+        </div>
+
+        <h3>
+          No history yet
+        </h3>
+
+        <p>
+          Your resume analyses will appear here.
+        </p>
+
+      </div>
+
+    {% endif %}
+
+  </section>
+
+
+</main>
+
+
+
+<!-- FOOTER -->
+
+<footer>
+
+  <div class="footer-box">
+
+    <div class="footer-brand">
+
+      <div class="footer-logo">
+        RI
+      </div>
+
+      <div>
+
+        <b>
+          Resume<span>IQ</span>
+        </b>
+
+        <p>
+          AI-powered resume improvement.
+        </p>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <div class="footer-bottom">
+
+    <p>
+      © 2026 ResumeIQ
+    </p>
+
+    <a href="/logout">
+      Logout
+    </a>
+
+  </div>
+
+</footer>
+
+
+</body>
+</html>
