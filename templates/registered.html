@@ -1,10 +1,14 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ResumeIQ - Account Registered</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ResumeIQ — Registered</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
 <body>
-<header><div class="logo">Resume<span>IQ</span></div><a href="{{ url_for('login') }}" class="nav-btn">Login</a></header>
-<div class="page center-page"><div class="login-card">
-<h1>Account Registered</h1>
-<div class="message"><p>Your account has been registered successfully. Please go back to login.</p></div>
-<a href="{{ url_for('login') }}" class="nav-btn generate">Back to Login</a>
-</div></div>
-</body></html>
+<header><div class="logo">Resume<span>IQ</span>
+</div><div class="header-actions">
+<input type="checkbox" id="theme-toggle">
+<label class="theme-toggle" for="theme-toggle">Dark mode</label>
+</div>
+</header>
+<main class="page center">
+    <section class="card message-card"><h1>Account Registered</h1><p class="subtitle">Your account has been created successfully. Please return to the login page.</p><a class="big-button" href="{{ url_for('login') }}">Back to Login</a>
+    </section>
+</main></body>
+</html>
