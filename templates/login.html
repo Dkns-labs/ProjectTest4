@@ -1,15 +1,122 @@
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ResumeIQ - Login</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<html>
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>ResumeIQ - Login</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
 <body>
-<header><div class="logo">Resume<span>IQ</span></div><a href="{{ url_for('login') }}" class="nav-btn">Login</a></header>
-<div class="page center-page"><div class="login-card">
-<h1>Login</h1><p style="margin-bottom:20px;">Welcome back to ResumeIQ.</p>
-{% with messages = get_flashed_messages() %}{% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}{% endwith %}
-<form method="post">
-<label>Email</label><input type="email" name="email" placeholder="you@gmail.com" required>
-<label>Password</label><input type="password" name="password" placeholder="Password" required>
-<button type="submit">Login</button>
-</form>
-<p class="register-line">No account? <a href="{{ url_for('register') }}">Register here</a></p>
-</div></div>
-</body></html>
+
+<header>
+
+    <div class="logo">
+        Resume<span>IQ</span>
+    </div>
+
+    <a
+        href="{{ url_for('login') }}"
+        class="nav-btn"
+    >
+        Login
+    </a>
+
+</header>
+
+
+<div class="page center-page">
+
+    <div class="login-card">
+
+        <h1>
+            Login
+        </h1>
+
+        <p style="margin-bottom:20px;">
+            Welcome back to ResumeIQ.
+        </p>
+
+
+        {% with messages = get_flashed_messages() %}
+
+            {% if messages %}
+
+                {% for message in messages %}
+
+                    <div class="flash">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            {% endif %}
+
+        {% endwith %}
+
+
+        <form
+            method="POST"
+            action="{{ url_for('login') }}"
+        >
+
+            <label>
+                Email
+            </label>
+
+            <input
+                type="email"
+                name="email"
+                placeholder="you@gmail.com"
+                required
+            >
+
+
+            <label>
+                Password
+            </label>
+
+            <input
+                type="password"
+                name="password"
+                placeholder="Password"
+                required
+            >
+
+
+            <button type="submit">
+                Login
+            </button>
+
+        </form>
+
+
+        <p class="register-line">
+
+            No account?
+
+            <a href="{{ url_for('register') }}">
+                Register here
+            </a>
+
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
