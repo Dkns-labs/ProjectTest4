@@ -1,3 +1,28 @@
-{% extends "base.html" %}
-{% block title %}ResumeIQ — Account Created{% endblock %}
-{% block content %}<main class="auth-page"><section class="auth-card"><div class="eyebrow">Done</div><h1>You're ready.</h1><p class="muted big-text">Your ResumeIQ account has been created.</p><a class="button blue full-link" href="{{ url_for('login') }}">Continue to sign in</a></section></main>{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ — Account Created</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="wrap header-row">
+        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
+        <nav>
+            <a href="{{ url_for('login') }}">Sign in</a>
+            <a class="nav-button" href="{{ url_for('register') }}">Start now</a>
+        </nav>
+    </div>
+</header>
+<main class="auth-page">
+    <section class="auth-card">
+        <div class="eyebrow">Done</div>
+        <h1>You're ready.</h1>
+        <p class="muted big-text">Your ResumeIQ account has been created.</p>
+        <a class="button blue full-link" href="{{ url_for('login') }}">Continue to sign in</a>
+    </section>
+</main>
+</body>
+</html>

@@ -1,14 +1,45 @@
-{% extends "base.html" %}
-{% block title %}ResumeIQ — Profile{% endblock %}
-{% block nav %}<nav><a href="{{ url_for('analyzer') }}">Analyzer</a><a href="{{ url_for('history') }}">History</a><a href="{{ url_for('profile') }}">Profile</a><a class="nav-button" href="{{ url_for('logout') }}">Logout</a></nav>{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ — Profile</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="wrap header-row">
+        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
+        <nav>
+            <a href="{{ url_for('analyzer') }}">Analyzer</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a class="nav-button" href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </div>
+</header>
 <main class="dashboard wrap">
-    <div class="eyebrow">Workspace / Profile</div><h1>Your details.</h1><p class="muted big-text">The account information connected to your ResumeIQ workspace.</p>
+    <div class="eyebrow">Workspace / Profile</div>
+    <h1>Your details.</h1>
+    <p class="muted big-text">The account information connected to your ResumeIQ workspace.</p>
     <section class="profile-grid">
-        <div class="profile-item"><span>First name</span><strong>{{ user['first_name'] }}</strong></div>
-        <div class="profile-item"><span>Last name</span><strong>{{ user['last_name'] }}</strong></div>
-        <div class="profile-item"><span>Username</span><strong>{{ user['username'] }}</strong></div>
-        <div class="profile-item"><span>Email</span><strong>{{ user['email'] }}</strong></div>
+        <div class="profile-item">
+            <span>First name</span>
+            <strong>{{ user['first_name'] }}</strong>
+        </div>
+        <div class="profile-item">
+            <span>Last name</span>
+            <strong>{{ user['last_name'] }}</strong>
+        </div>
+        <div class="profile-item">
+            <span>Username</span>
+            <strong>{{ user['username'] }}</strong>
+        </div>
+        <div class="profile-item">
+            <span>Email</span>
+            <strong>{{ user['email'] }}</strong>
+        </div>
     </section>
 </main>
-{% endblock %}
+</body>
+</html>

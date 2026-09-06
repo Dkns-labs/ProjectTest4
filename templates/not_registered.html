@@ -1,3 +1,28 @@
-{% extends "base.html" %}
-{% block title %}ResumeIQ — Account Not Found{% endblock %}
-{% block content %}<main class="auth-page"><section class="auth-card"><div class="eyebrow">Not found</div><h1>Let's start fresh.</h1><p class="muted big-text">That email is not registered yet.</p><a class="button blue full-link" href="{{ url_for('register') }}">Create an account</a></section></main>{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ — Account Not Found</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="wrap header-row">
+        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
+        <nav>
+            <a href="{{ url_for('login') }}">Sign in</a>
+            <a class="nav-button" href="{{ url_for('register') }}">Start now</a>
+        </nav>
+    </div>
+</header>
+<main class="auth-page">
+    <section class="auth-card">
+        <div class="eyebrow">Not found</div>
+        <h1>Let's start fresh.</h1>
+        <p class="muted big-text">That email is not registered yet.</p>
+        <a class="button blue full-link" href="{{ url_for('register') }}">Create an account</a>
+    </section>
+</main>
+</body>
+</html>

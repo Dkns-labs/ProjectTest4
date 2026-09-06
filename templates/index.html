@@ -1,6 +1,21 @@
-{% extends "base.html" %}
-{% block title %}ResumeIQ — Resume Intelligence{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ — Resume Intelligence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="wrap header-row">
+        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
+        <nav>
+            <a href="{{ url_for('login') }}">Login</a>
+            <a class="nav-button" href="{{ url_for('register') }}">Start now</a>
+        </nav>
+    </div>
+</header>
 <main>
     <section class="hero wrap">
         <div>
@@ -13,8 +28,15 @@
             </div>
         </div>
         <div class="mock">
-            <div class="mock-head"><span>ResumeIQ report</span><span>LIVE</span></div>
-            <div class="mock-score"><strong>82%</strong><span>Match with Python Developer</span><div class="mock-line"><b></b></div></div>
+            <div class="mock-head">
+                <span>ResumeIQ report</span>
+                <span>LIVE</span>
+            </div>
+            <div class="mock-score">
+                <strong>82%</strong>
+                <span>Match with Python Developer</span>
+                <div class="mock-line"><b></b></div>
+            </div>
             <div class="mock-row"><span>Skills</span><b>18 matched</b></div>
             <div class="mock-row"><span>Experience</span><b>Strong</b></div>
             <div class="mock-row"><span>Improvements</span><b>03</b></div>
@@ -26,11 +48,24 @@
             <div class="eyebrow">What you get / 02</div>
             <h2 class="section-title">Less guessing. More useful feedback.</h2>
             <div class="card-grid">
-                <article class="card"><div class="card-number">01</div><h3>Match score</h3><p>See a simple percentage showing how closely your resume fits the job.</p></article>
-                <article class="card"><div class="card-number">02</div><h3>Skill gaps</h3><p>Separate the skills you have from the skills the job still needs.</p></article>
-                <article class="card"><div class="card-number">03</div><h3>Next steps</h3><p>Get three focused suggestions instead of a wall of confusing feedback.</p></article>
+                <article class="card">
+                    <div class="card-number">01</div>
+                    <h3>Match score</h3>
+                    <p>See a simple percentage showing how closely your resume fits the job.</p>
+                </article>
+                <article class="card">
+                    <div class="card-number">02</div>
+                    <h3>Skill gaps</h3>
+                    <p>Separate the skills you have from the skills the job still needs.</p>
+                </article>
+                <article class="card">
+                    <div class="card-number">03</div>
+                    <h3>Next steps</h3>
+                    <p>Get three focused suggestions instead of a wall of confusing feedback.</p>
+                </article>
             </div>
         </div>
     </section>
 </main>
-{% endblock %}
+</body>
+</html>

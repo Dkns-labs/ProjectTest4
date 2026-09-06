@@ -1,12 +1,59 @@
-{% extends "base.html" %}
-{% block title %}ResumeIQ — Report{% endblock %}
-{% block nav %}<nav><a href="{{ url_for('history') }}">History</a><a class="nav-button" href="{{ url_for('analyzer') }}">New analysis</a></nav>{% endblock %}
-{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ResumeIQ — Report</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="header">
+    <div class="wrap header-row">
+        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
+        <nav>
+            <a href="{{ url_for('history') }}">History</a>
+            <a class="nav-button" href="{{ url_for('analyzer') }}">New analysis</a>
+        </nav>
+    </div>
+</header>
 <main class="dashboard wrap">
-    <div class="eyebrow">Report / {{ item['created_at'] }}</div><h1>{{ item['job_title'] or 'Resume report' }}</h1><p class="muted big-text">{{ item['company'] or 'Resume match results' }}</p>
-    <section class="report-score"><strong>{{ result.get('score', item['score']) }}%</strong><span>Overall resume match</span></section>
-    <div class="metrics">{% for label, key in [('ATS Score', 'ats_score'), ('Skills Match', 'skills_match'), ('Keyword Density', 'keyword_density'), ('Experience Fit', 'experience_fit')] %}<div class="metric"><span>{{ label }}</span><strong>{{ result.get(key, 0) }}%</strong></div>{% endfor %}</div>
-    {% for title, key in [('Confirmed Skills', 'confirmed_skills'), ('Partial Skills', 'partial_skills'), ('Missing Skills', 'missing_skills'), ('Suggestions', 'suggestions')] %}<section class="panel report-block"><h2>{{ title }}</h2><ul>{% for value in result.get(key, []) %}<li>{{ value }}</li>{% else %}<li>None returned.</li>{% endfor %}</ul></section>{% endfor %}
-    <section class="panel report-block"><h2>Experience summary</h2><p class="muted">{{ result.get('experience_summary', '') }}</p><h2>Education summary</h2><p class="muted">{{ result.get('education_summary', '') }}</p></section>
+    <div class="eyebrow">Report / {{ item['created_at'] }}</div>
+    <h1>{{ item['job_title'] or 'Resume report' }}</h1>
+    <p class="muted big-text">{{ item['company'] or 'Resume match results' }}</p>
+
+    <section class="report-score">
+        <strong>{{ result.get('score', item['score']) }}%</strong>
+        <span>Overall resume match</span>
+    </section>
+
+    <div class="metrics">
+        {% for label, key in [('ATS Score', 'ats_score'), ('Skills Match', 'skills_match'), ('Keyword Density', 'keyword_density'), ('Experience Fit', 'experience_fit')] %}
+            <div class="metric">
+                <span>{{ label }}</span>
+                <strong>{{ result.get(key, 0) }}%</strong>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% for title, key in [('Confirmed Skills', 'confirmed_skills'), ('Partial Skills', 'partial_skills'), ('Missing Skills', 'missing_skills'), ('Suggestions', 'suggestions')] %}
+        <section class="panel report-block">
+            <h2>{{ title }}</h2>
+            <ul>
+                {% for value in result.get(key, []) %}
+                    <li>{{ value }}</li>
+                {% else %}
+                    <li>None returned.</li>
+                {% endfor %}
+            </ul>
+        </section>
+    {% endfor %}
+
+    <section class="panel report-block">
+        <h2>Experience summary</h2>
+        <p class="muted">{{ result.get('experience_summary', '') }}</p>
+        <h2>Education summary</h2>
+        <p class="muted">{{ result.get('education_summary', '') }}</p>
+    </section>
 </main>
-{% endblock %}
+</body>
+</html>
