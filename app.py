@@ -15,23 +15,22 @@ app.secret_key = os.environ["SECRET_KEY"]
 
 DATABASE = "resumeiq.db"
 UPLOAD_FOLDER = "uploads"
-ALLOWED_EXTENSIONS = {"pdf", "docx"}
-
+ALLOWED_FILES = {"pdf", "docx"}
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
 
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-def get_db():
-    db = sqlite3.connect(DATABASE)
-    db.row_factory = sqlite3.Row
-    return db
+def db():
+    connection = sqlite3.connect(DATABASE)
+    connection.row_factory = sqlite3.Row
+    return connection
 
 
-def create_tables():
-    with get_db() as db:
-        db.execute(
+def setup_database():
+    with db() as connection:
+        connection.execute(
             """
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -43,7 +42,7 @@ def create_tables():
             )
             """
         )
-        db.execute(
+        connection.execute(
             """
             CREATE TABLE IF NOT EXISTS history (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -62,21 +61,23 @@ def logged_in():
     return "user_id" in session
 
 
-def allowed_file(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+def valid_file(filename):
+    if "." not in filename:
+        return False
+    return filename.rsplit(".", 1)[1].lower() in ALLOWED_FILES
 
 
-def read_resume(upload):
-    filename = secure_filename(upload.filename or "")
+def get_resume_text(file):
+    filename = secure_filename(file.filename or "")
 
     if not filename:
-        raise ValueError("Please select a resume.")
+        raise ValueError("Please choose a resume.")
 
-    if not allowed_file(filename):
+    if not valid_file(filename):
         raise ValueError("Only PDF and DOCX files are supported.")
 
     path = os.path.join(UPLOAD_FOLDER, filename)
-    upload.save(path)
+    file.save(path)
 
     if filename.lower().endswith(".pdf"):
         reader = PdfReader(path)
@@ -86,7 +87,7 @@ def read_resume(upload):
     return "\n".join(paragraph.text for paragraph in document.paragraphs)
 
 
-def analyze_resume(resume, job_title, company, seniority, job_description):
+def analyze(resume, job_title, company, seniority, job_description):
     if not GEMINI_API_KEY:
         raise RuntimeError("GEMINI_API_KEY is not configured.")
 
@@ -138,10 +139,9 @@ def login():
     email = request.form.get("email", "").strip().lower()
     password = request.form.get("password", "")
 
-    with get_db() as db:
-        user = db.execute(
-            "SELECT * FROM users WHERE email = ?",
-            (email,),
+    with db() as connection:
+        user = connection.execute(
+            "SELECT * FROM users WHERE email = ?", (email,)
         ).fetchone()
 
     if user is None:
@@ -173,11 +173,11 @@ def register():
         return redirect(url_for("register"))
 
     try:
-        with get_db() as db:
-            db.execute(
+        with db() as connection:
+            connection.execute(
                 """
                 INSERT INTO users
-                    (first_name, last_name, username, email, password)
+                (first_name, last_name, username, email, password)
                 VALUES (?, ?, ?, ?, ?)
                 """,
                 (
@@ -211,7 +211,7 @@ def analyzer():
         return redirect(url_for("login"))
 
     if request.method == "GET":
-        return render_template("analyzer.html", page="analyzer")
+        return render_template("analyzer.html")
 
     job_title = request.form.get("job_title", "").strip()
     company = request.form.get("company", "").strip()
@@ -224,27 +224,27 @@ def analyzer():
         return redirect(url_for("analyzer"))
 
     try:
-        resume = read_resume(resume_file)
+        resume = get_resume_text(resume_file)
         if not resume.strip():
-            raise ValueError("No readable text was found in the resume.")
+            raise ValueError("No readable text was found.")
 
-        result = analyze_resume(
+        result = analyze(
             resume,
             job_title,
             company,
             seniority,
             job_description,
         )
-    except Exception as error:
-        app.logger.exception("Resume analysis failed: %s", error)
-        flash("Analysis failed. Check your API configuration and resume file.")
+    except Exception:
+        app.logger.exception("Resume analysis failed")
+        flash("Analysis failed. Check your API settings and resume file.")
         return redirect(url_for("analyzer"))
 
-    with get_db() as db:
-        cursor = db.execute(
+    with db() as connection:
+        cursor = connection.execute(
             """
             INSERT INTO history
-                (user_id, job_title, company, score, report)
+            (user_id, job_title, company, score, report)
             VALUES (?, ?, ?, ?, ?)
             """,
             (
@@ -265,8 +265,8 @@ def history():
     if not logged_in():
         return redirect(url_for("login"))
 
-    with get_db() as db:
-        records = db.execute(
+    with db() as connection:
+        records = connection.execute(
             """
             SELECT id, job_title, company, score, created_at
             FROM history
@@ -276,7 +276,7 @@ def history():
             (session["user_id"],),
         ).fetchall()
 
-    return render_template("analyzer.html", page="history", history=records)
+    return render_template("history.html", history=records)
 
 
 @app.route("/profile")
@@ -284,8 +284,8 @@ def profile():
     if not logged_in():
         return redirect(url_for("login"))
 
-    with get_db() as db:
-        user = db.execute(
+    with db() as connection:
+        user = connection.execute(
             """
             SELECT first_name, last_name, username, email
             FROM users
@@ -294,7 +294,7 @@ def profile():
             (session["user_id"],),
         ).fetchone()
 
-    return render_template("analyzer.html", page="profile", user=user)
+    return render_template("profile.html", user=user)
 
 
 @app.route("/report/<int:history_id>")
@@ -302,8 +302,8 @@ def report(history_id):
     if not logged_in():
         return redirect(url_for("login"))
 
-    with get_db() as db:
-        item = db.execute(
+    with db() as connection:
+        item = connection.execute(
             """
             SELECT id, job_title, company, score, report, created_at
             FROM history
@@ -325,9 +325,8 @@ def logout():
     return redirect(url_for("login"))
 
 
-create_tables()
+setup_database()
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))

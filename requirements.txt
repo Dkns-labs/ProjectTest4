@@ -1,5 +1,6 @@
 Flask
-gunicorn
+Gunicorn
 google-genai
 pypdf
 python-docx
+Werkzeug
