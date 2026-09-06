@@ -1,42 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeIQ — History</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<header class="header">
-    <div class="wrap header-row">
-        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
-        <nav>
-            <a href="{{ url_for('analyzer') }}">Analyzer</a>
-            <a href="{{ url_for('history') }}">History</a>
-            <a href="{{ url_for('profile') }}">Profile</a>
-            <a class="nav-button" href="{{ url_for('logout') }}">Logout</a>
-        </nav>
-    </div>
-</header>
+{% extends "base.html" %}
+{% block title %}ResumeIQ — History{% endblock %}
+{% block nav %}<nav><a href="{{ url_for('analyzer') }}">Analyzer</a><a href="{{ url_for('history') }}">History</a><a href="{{ url_for('profile') }}">Profile</a><a class="nav-button" href="{{ url_for('logout') }}">Logout</a></nav>{% endblock %}
+{% block content %}
 <main class="dashboard wrap">
-    <div class="eyebrow">Workspace / History</div>
-    <h1>Your analyses.</h1>
-    <p class="muted big-text">Every report you have created, in one place.</p>
-    <section class="panel">
-        {% if history %}
-            {% for item in history %}
-                <a class="history-row" href="{{ url_for('report', history_id=item['id']) }}">
-                    <div>
-                        <strong>{{ item['job_title'] or 'Resume Analysis' }}</strong>
-                        <span>{{ item['company'] or 'No company' }} · {{ item['created_at'] }}</span>
-                    </div>
-                    <b>{{ item['score'] }}%</b>
-                </a>
-            {% endfor %}
-        {% else %}
-            <p class="empty">No analyses yet. Start your first one.</p>
-        {% endif %}
+    <div class="eyebrow">Workspace / History</div><h1>Your analyses.</h1><p class="muted big-text">Every report you have created, in one place.</p>
+    <section class="panel" class="panel mt">
+        {% if history %}{% for item in history %}<a class="history-row" href="{{ url_for('report', history_id=item['id']) }}"><div><strong>{{ item['job_title'] or 'Resume Analysis' }}</strong><span>{{ item['company'] or 'No company' }} · {{ item['created_at'] }}</span></div><b>{{ item['score'] }}%</b></a>{% endfor %}{% else %}<p class="empty">No analyses yet. Start your first one.</p>{% endif %}
     </section>
 </main>
-</body>
-</html>
+{% endblock %}

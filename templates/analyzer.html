@@ -1,65 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeIQ — Analyzer</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
-<header class="header">
-    <div class="wrap header-row">
-        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
-        <nav>
-            <a href="{{ url_for('analyzer') }}">Analyzer</a>
-            <a href="{{ url_for('history') }}">History</a>
-            <a href="{{ url_for('profile') }}">Profile</a>
-            <a class="nav-button" href="{{ url_for('logout') }}">Logout</a>
-        </nav>
-    </div>
-</header>
+{% extends "base.html" %}
+{% block title %}ResumeIQ — Analyzer{% endblock %}
+{% block nav %}
+<nav><a href="{{ url_for('analyzer') }}">Analyzer</a><a href="{{ url_for('history') }}">History</a><a href="{{ url_for('profile') }}">Profile</a><a class="nav-button" href="{{ url_for('logout') }}">Logout</a></nav>
+{% endblock %}
+{% block content %}
 <main class="dashboard wrap">
     <div class="dashboard-intro">
-        <div>
-            <div class="eyebrow">Workspace / Analyzer</div>
-            <h1>Find your fit.</h1>
-        </div>
+        <div><div class="eyebrow">Workspace / Analyzer</div><h1>Find your fit.</h1></div>
         <p class="muted big-text">Give ResumeIQ the job and your resume. It will turn both into a clear match report.</p>
     </div>
-    {% with messages = get_flashed_messages() %}
-        {% for message in messages %}
-            <div class="message">{{ message }}</div>
-        {% endfor %}
-    {% endwith %}
+    {% with messages = get_flashed_messages() %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endwith %}
     <div class="analyzer-grid">
         <section class="panel">
-            <div class="panel-title">
-                <h2>Job information</h2>
-                <span class="number">01</span>
-            </div>
+            <div class="panel-title"><h2>Job information</h2><span class="number">01</span></div>
             <form method="post" enctype="multipart/form-data">
                 <div class="two-inputs">
-                    <div>
-                        <label for="job_title">Job title</label>
-                        <input id="job_title" name="job_title" placeholder="Python Developer" required>
-                    </div>
-                    <div>
-                        <label for="company">Company</label>
-                        <input id="company" name="company" placeholder="Optional">
-                    </div>
+                    <div><label for="job_title">Job title</label><input id="job_title" name="job_title" placeholder="Python Developer" required></div>
+                    <div><label for="company">Company</label><input id="company" name="company" placeholder="Optional"></div>
                 </div>
                 <label for="seniority">Seniority</label>
-                <select id="seniority" name="seniority">
-                    <option>Entry Level</option>
-                    <option>Mid Level</option>
-                    <option>Senior Level</option>
-                </select>
+                <select id="seniority" name="seniority"><option>Entry Level</option><option>Mid Level</option><option>Senior Level</option></select>
                 <label for="job_description">Job description</label>
                 <textarea id="job_description" name="job_description" placeholder="Paste the full job description here..." required></textarea>
-                <div class="panel-title">
-                    <h2>Resume file</h2>
-                    <span class="number">02</span>
-                </div>
+                <div class="panel-title" class="panel mt"><h2>Resume file</h2><span class="number">02</span></div>
                 <label for="resume">PDF or DOCX</label>
                 <input id="resume" type="file" name="resume" accept=".pdf,.docx" required>
                 <button class="full-button" type="submit">Run analysis</button>
@@ -67,20 +30,10 @@
         </section>
         <aside class="panel">
             <div class="eyebrow">Quick guide</div>
-            <div class="tip">
-                <strong>Use the full job post</strong>
-                <p>More context makes the comparison more useful.</p>
-            </div>
-            <div class="tip">
-                <strong>Use a text resume</strong>
-                <p>PDF and DOCX files with selectable text work best.</p>
-            </div>
-            <div class="tip">
-                <strong>Keep it real</strong>
-                <p>ResumeIQ highlights gaps; it does not invent experience.</p>
-            </div>
+            <div class="tip"><strong>Use the full job post</strong><p>More context makes the comparison more useful.</p></div>
+            <div class="tip"><strong>Use a text resume</strong><p>PDF and DOCX files with selectable text work best.</p></div>
+            <div class="tip"><strong>Keep it real</strong><p>ResumeIQ highlights gaps; it does not invent experience.</p></div>
         </aside>
     </div>
 </main>
-</body>
-</html>
+{% endblock %}
