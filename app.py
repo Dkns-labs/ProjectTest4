@@ -2,345 +2,572 @@ import os
 import json
 import sqlite3
 
-import requests
-
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
+
 from google import genai
 from pypdf import PdfReader
 from docx import Document
 
+import config
+
+
+# -----------------------------
+# FLASK
+# -----------------------------
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "resumeiq-secret-key")
-app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
-DB = "resumeiq.db"
-UPLOADS = "uploads"
-MODEL = "gemini-3.6-flash"
+app.secret_key = config.SECRET_KEY
 
-os.makedirs(UPLOADS, exist_ok=True)
+DATABASE = "resumeiq.db"
+UPLOAD_FOLDER = "uploads"
 
-
-# Gemini API key is directly in app.py for testing
-GEMINI_API_KEY = "AQ.Ab8RN6IvSeoXaFirJdp8J9OCS2PJiE9dNfqNmCgnqONlgl0wtA"
-gemini = genai.Client(api_key=GEMINI_API_KEY)
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 
-def db():
-    connection = sqlite3.connect(DB)
-    connection.row_factory = sqlite3.Row
-    return connection
+# -----------------------------
+# DATABASE
+# -----------------------------
+
+def database():
+    return sqlite3.connect(DATABASE)
 
 
-def setup_database():
-    connection = db()
+def create_database():
 
-    connection.execute("""
+    db = database()
+
+    db.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            username TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL
+            first_name TEXT,
+            last_name TEXT,
+            username TEXT UNIQUE,
+            email TEXT UNIQUE,
+            password TEXT
         )
     """)
 
-    connection.execute("""
+    db.execute("""
         CREATE TABLE IF NOT EXISTS history (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            job_title TEXT NOT NULL,
+            user_id INTEGER,
+            job_title TEXT,
             company TEXT,
             score INTEGER,
-            report TEXT,
+            ai_report TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
-    connection.commit()
-    connection.close()
+    db.commit()
+    db.close()
 
 
-setup_database()
+create_database()
 
 
-def read_resume(file):
-    filename = secure_filename(file.filename)
+# -----------------------------
+# GEMINI
+# -----------------------------
 
-    if not filename:
-        raise ValueError("Please upload a resume.")
+gemini = genai.Client(
+    api_key=config.GEMINI_API_KEY.strip()
+)
 
-    path = os.path.join(UPLOADS, filename)
-    file.save(path)
-
-    if filename.lower().endswith(".pdf"):
-        reader = PdfReader(path)
-        return "\n".join(page.extract_text() or "" for page in reader.pages)
-
-    if filename.lower().endswith(".docx"):
-        document = Document(path)
-        return "\n".join(paragraph.text for paragraph in document.paragraphs)
-
-    raise ValueError("Please upload a PDF or DOCX resume.")
+MODEL = config.GEMINI_MODEL
 
 
-def analyze(resume, job_title, company, seniority, job_description):
-    prompt = f"""
-Analyze this resume for the job below.
-
-JOB TITLE: {job_title}
-COMPANY: {company or "Not provided"}
-SENIORITY: {seniority or "Not provided"}
-JOB DESCRIPTION:
-{job_description or "Not provided"}
-
-RESUME:
-{resume[:30000]}
-
-Return ONLY valid JSON with these fields:
-score, ats_score, skills_match, keyword_density, experience_fit,
-confirmed_skills, partial_skills, missing_skills, suggestions,
-experience_summary, education_summary
-
-Scores must be integers from 0 to 100.
-Skills and suggestions must be lists.
-Suggestions must contain 3 practical suggestions.
-"""
-
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/"
-        f"models/{MODEL}:generateContent"
-    )
-
-    response = requests.post(
-        url,
-        headers={"x-goog-api-key": GEMINI_API_KEY},
-        json={
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }],
-            "generationConfig": {
-                "responseMimeType": "application/json"
-            }
-        },
-        timeout=120
-    )
-
-    if response.status_code != 200:
-        try:
-            error = response.json().get("error", {})
-            message = error.get("message", response.text)
-        except ValueError:
-            message = response.text
-
-        raise ValueError(
-            f"Gemini API error {response.status_code}: {message}"
-        )
-
-    data = response.json()
-
-    try:
-        text = data["candidates"][0]["content"]["parts"][0]["text"]
-    except (KeyError, IndexError, TypeError):
-        raise ValueError("Gemini returned no usable text response.")
-
-    text = text.strip().replace("```json", "").replace("```", "").strip()
-
-    if not text:
-        raise ValueError("Gemini returned an empty response.")
-
-    try:
-        return json.loads(text)
-    except json.JSONDecodeError as error:
-        raise ValueError(f"Gemini returned invalid JSON: {error}")
-
+# -----------------------------
+# LOGIN CHECK
+# -----------------------------
 
 def logged_in():
     return "user_id" in session
 
 
+# -----------------------------
+# READ RESUME
+# -----------------------------
+
+def read_resume(file):
+
+    filename = secure_filename(file.filename)
+
+    if not filename:
+        raise ValueError("Invalid file name.")
+
+    path = os.path.join(
+        UPLOAD_FOLDER,
+        filename
+    )
+
+    file.save(path)
+
+    if filename.lower().endswith(".pdf"):
+
+        pdf = PdfReader(path)
+
+        text = ""
+
+        for page in pdf.pages:
+            text += page.extract_text() or ""
+
+        return text
+
+    if filename.lower().endswith(".docx"):
+
+        document = Document(path)
+
+        text = ""
+
+        for paragraph in document.paragraphs:
+            text += paragraph.text + "\n"
+
+        return text
+
+    raise ValueError(
+        "Please upload a PDF or DOCX file."
+    )
+
+
+# -----------------------------
+# GEMINI ANALYSIS
+# -----------------------------
+
+def analyze_resume(
+    resume,
+    job_title,
+    company,
+    seniority,
+    job_description
+):
+
+    prompt = f"""
+Analyze this resume for the job below.
+
+Job Title:
+{job_title}
+
+Company:
+{company}
+
+Seniority Level:
+{seniority}
+
+Job Description:
+{job_description}
+
+Resume:
+{resume[:30000]}
+
+Return ONLY valid JSON.
+
+Use exactly these fields:
+
+score
+ats_score
+skills_match
+keyword_density
+experience_fit
+confirmed_skills
+partial_skills
+missing_skills
+suggestions
+experience_summary
+education_summary
+
+Scores must be numbers from 0 to 100.
+
+confirmed_skills, partial_skills and missing_skills
+must be lists.
+
+suggestions must contain 3 suggestions.
+"""
+
+    response = gemini.models.generate_content(
+        model=MODEL,
+        contents=prompt
+    )
+
+    text = response.text.strip()
+
+    text = text.replace("```json", "")
+    text = text.replace("```", "")
+
+    return json.loads(text)
+
+
+# -----------------------------
+# HOME
+# -----------------------------
+
 @app.route("/")
 def home():
-    return redirect(url_for("analyzer" if logged_in() else "login"))
 
+    if logged_in():
+        return redirect(url_for("analyzer"))
+
+    return redirect(url_for("login"))
+
+
+# -----------------------------
+# LOGIN
+# -----------------------------
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "GET":
-        return render_template("login.html")
 
-    email = request.form["email"].strip().lower()
-    password = request.form["password"]
+    if request.method == "POST":
 
-    connection = db()
-    user = connection.execute(
-        "SELECT * FROM users WHERE email = ?",
-        (email,)
-    ).fetchone()
-    connection.close()
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
 
-    if not user:
-        return redirect(url_for("not_registered"))
+        password = request.form.get(
+            "password",
+            ""
+        )
 
-    if not check_password_hash(user["password"], password):
-        flash("Incorrect email or password.")
-        return render_template("login.html")
+        db = database()
 
-    session["user_id"] = user["id"]
-    session["username"] = user["username"]
+        user = db.execute(
+            """
+            SELECT *
+            FROM users
+            WHERE email = ?
+            """,
+            (email,)
+        ).fetchone()
 
-    return redirect(url_for("analyzer"))
+        db.close()
 
+        if not user:
+
+            return redirect(
+                url_for("not_registered")
+            )
+
+        if not check_password_hash(
+            user[5],
+            password
+        ):
+
+            flash(
+                "Incorrect email or password."
+            )
+
+            return redirect(
+                url_for("login")
+            )
+
+        session["user_id"] = user[0]
+        session["username"] = user[3]
+
+        return redirect(
+            url_for("analyzer")
+        )
+
+    return render_template("login.html")
+
+
+# -----------------------------
+# NOT REGISTERED
+# -----------------------------
 
 @app.route("/not-registered")
 def not_registered():
-    return render_template("not_registered.html")
 
+    return render_template(
+        "not_registered.html"
+    )
+
+
+# -----------------------------
+# REGISTER
+# -----------------------------
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-    if request.method == "GET":
-        return render_template("register.html")
 
-    first = request.form["first_name"].strip()
-    last = request.form["last_name"].strip()
-    username = request.form["username"].strip()
-    email = request.form["email"].strip().lower()
-    password = request.form["password"]
-    confirm = request.form["confirm_password"]
+    if request.method == "POST":
 
-    if password != confirm:
-        flash("Passwords do not match.")
-        return render_template("register.html")
+        first_name = request.form.get(
+            "first_name",
+            ""
+        ).strip()
 
-    connection = db()
+        last_name = request.form.get(
+            "last_name",
+            ""
+        ).strip()
 
-    try:
-        connection.execute("""
-            INSERT INTO users
-            (first_name, last_name, username, email, password)
-            VALUES (?, ?, ?, ?, ?)
-        """, (
-            first,
-            last,
-            username,
-            email,
-            generate_password_hash(password)
-        ))
+        username = request.form.get(
+            "username",
+            ""
+        ).strip()
 
-        connection.commit()
+        email = request.form.get(
+            "email",
+            ""
+        ).strip().lower()
 
-    except sqlite3.IntegrityError:
-        connection.close()
-        flash("Email or username is already registered.")
-        return render_template("register.html")
+        password = request.form.get(
+            "password",
+            ""
+        )
 
-    connection.close()
-    return redirect(url_for("registered"))
+        confirm_password = request.form.get(
+            "confirm_password",
+            ""
+        )
 
+        if password != confirm_password:
+
+            flash("Passwords do not match.")
+
+            return redirect(
+                url_for("register")
+            )
+
+        db = database()
+
+        try:
+
+            db.execute(
+                """
+                INSERT INTO users
+                (
+                    first_name,
+                    last_name,
+                    username,
+                    email,
+                    password
+                )
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    first_name,
+                    last_name,
+                    username,
+                    email,
+                    generate_password_hash(password)
+                )
+            )
+
+            db.commit()
+            db.close()
+
+            return redirect(
+                url_for("registered")
+            )
+
+        except sqlite3.IntegrityError:
+
+            db.close()
+
+            flash(
+                "Email or username is already registered."
+            )
+
+            return redirect(
+                url_for("register")
+            )
+
+    return render_template("register.html")
+
+
+# -----------------------------
+# REGISTERED
+# -----------------------------
 
 @app.route("/registered")
 def registered():
-    return render_template("registered.html")
+
+    return render_template(
+        "registered.html"
+    )
 
 
-@app.route("/analyzer", methods=["GET", "POST"])
+# -----------------------------
+# ANALYZER
+# -----------------------------
+
+@app.route(
+    "/analyzer",
+    methods=["GET", "POST"]
+)
 def analyzer():
+
     if not logged_in():
-        return redirect(url_for("login"))
 
-    if request.method == "GET":
-        return render_template("analyzer.html", page="analyzer")
-
-    job_title = request.form["job_title"].strip()
-    company = request.form.get("company", "").strip()
-    seniority = request.form.get("seniority", "")
-    job_description = request.form.get("job_description", "")
-    resume_file = request.files.get("resume")
-
-    if not resume_file or not resume_file.filename:
-        flash("Please upload your resume.")
-        return render_template("analyzer.html", page="analyzer")
-
-    try:
-        resume = read_resume(resume_file)
-
-        if not resume.strip():
-            raise ValueError("No readable text was found in the resume.")
-
-        result = analyze(
-            resume,
-            job_title,
-            company,
-            seniority,
-            job_description
+        return redirect(
+            url_for("login")
         )
 
-    except Exception as error:
-        print("AI analysis error:", repr(error))
-        flash(f"AI analysis failed: {error}")
-        return render_template("analyzer.html", page="analyzer")
+    if request.method == "POST":
 
-    connection = db()
+        job_title = request.form.get(
+            "job_title",
+            ""
+        ).strip()
 
-    cursor = connection.execute("""
-        INSERT INTO history
-        (user_id, job_title, company, score, report)
-        VALUES (?, ?, ?, ?, ?)
-    """, (
-        session["user_id"],
-        job_title,
-        company,
-        int(result.get("score", 0)),
-        json.dumps(result)
-    ))
+        company = request.form.get(
+            "company",
+            ""
+        ).strip()
 
-    connection.commit()
-    history_id = cursor.lastrowid
-    connection.close()
+        seniority = request.form.get(
+            "seniority",
+            ""
+        )
 
-    return redirect(url_for("report", history_id=history_id))
+        job_description = request.form.get(
+            "job_description",
+            ""
+        ).strip()
 
+        resume_file = request.files.get(
+            "resume"
+        )
+
+        if not resume_file or not resume_file.filename:
+
+            flash("Please upload your resume.")
+
+            return redirect(
+                url_for("analyzer")
+            )
+
+        try:
+
+            resume_text = read_resume(
+                resume_file
+            )
+
+            result = analyze_resume(
+                resume_text,
+                job_title,
+                company,
+                seniority,
+                job_description
+            )
+
+        except Exception as error:
+
+            print("GEMINI ERROR:", error)
+
+            flash(
+                "AI analysis failed. Please check your Gemini API key."
+            )
+
+            return redirect(
+                url_for("analyzer")
+            )
+
+        db = database()
+
+        cursor = db.execute(
+            """
+            INSERT INTO history
+            (
+                user_id,
+                job_title,
+                company,
+                score,
+                ai_report
+            )
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                session["user_id"],
+                job_title,
+                company,
+                result.get("score", 0),
+                json.dumps(result)
+            )
+        )
+
+        history_id = cursor.lastrowid
+
+        db.commit()
+        db.close()
+
+        return redirect(
+            url_for(
+                "report",
+                history_id=history_id
+            )
+        )
+
+    return render_template(
+        "analyzer.html",
+        page="analyzer"
+    )
+
+
+# -----------------------------
+# HISTORY
+# -----------------------------
 
 @app.route("/history")
 def history():
+
     if not logged_in():
-        return redirect(url_for("login"))
 
-    connection = db()
+        return redirect(
+            url_for("login")
+        )
 
-    rows = connection.execute("""
+    db = database()
+
+    history = db.execute(
+        """
         SELECT *
         FROM history
         WHERE user_id = ?
         ORDER BY id DESC
-    """, (session["user_id"],)).fetchall()
+        """,
+        (session["user_id"],)
+    ).fetchall()
 
-    connection.close()
+    db.close()
 
     return render_template(
         "analyzer.html",
         page="history",
-        history=rows
+        history=history
     )
 
 
+# -----------------------------
+# PROFILE
+# -----------------------------
+
 @app.route("/profile")
 def profile():
+
     if not logged_in():
-        return redirect(url_for("login"))
 
-    connection = db()
+        return redirect(
+            url_for("login")
+        )
 
-    user = connection.execute(
-        "SELECT * FROM users WHERE id = ?",
+    db = database()
+
+    user = db.execute(
+        """
+        SELECT *
+        FROM users
+        WHERE id = ?
+        """,
         (session["user_id"],)
     ).fetchone()
 
-    connection.close()
+    db.close()
 
     return render_template(
         "analyzer.html",
@@ -349,28 +576,45 @@ def profile():
     )
 
 
+# -----------------------------
+# REPORT
+# -----------------------------
+
 @app.route("/report/<int:history_id>")
 def report(history_id):
+
     if not logged_in():
-        return redirect(url_for("login"))
 
-    connection = db()
+        return redirect(
+            url_for("login")
+        )
 
-    item = connection.execute("""
+    db = database()
+
+    item = db.execute(
+        """
         SELECT *
         FROM history
-        WHERE id = ? AND user_id = ?
-    """, (
-        history_id,
-        session["user_id"]
-    )).fetchone()
+        WHERE id = ?
+        AND user_id = ?
+        """,
+        (
+            history_id,
+            session["user_id"]
+        )
+    ).fetchone()
 
-    connection.close()
+    db.close()
 
     if not item:
-        return redirect(url_for("history"))
 
-    result = json.loads(item["report"] or "{}")
+        return redirect(
+            url_for("history")
+        )
+
+    result = json.loads(
+        item[5] or "{}"
+    )
 
     return render_template(
         "report.html",
@@ -379,12 +623,32 @@ def report(history_id):
     )
 
 
+# -----------------------------
+# LOGOUT
+# -----------------------------
+
 @app.route("/logout")
 def logout():
-    session.clear()
-    return redirect(url_for("login"))
 
+    session.clear()
+
+    return redirect(
+        url_for("login")
+    )
+
+
+# -----------------------------
+# RUN
+# -----------------------------
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+
+    app.run(
+        host="0.0.0.0",
+        port=int(
+            os.environ.get(
+                "PORT",
+                5000
+            )
+        )
+    )
