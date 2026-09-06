@@ -18,7 +18,7 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 DB = "resumeiq.db"
 UPLOADS = "uploads"
-MODEL = "gemini-3.5-flash"
+MODEL = "gemini-3.6-flash"
 
 os.makedirs(UPLOADS, exist_ok=True)
 
