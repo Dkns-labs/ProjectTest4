@@ -23,8 +23,8 @@ MODEL = "gemini-3.7-flash"
 os.makedirs(UPLOADS, exist_ok=True)
 
 
-# Gemini API key is directly in app.py for testing.
-GEMINI_API_KEY = "AQ.Ab8RN6JBcn4BF-QeuTFhDu-nb5-bg5CChxVbYztfHQjThgoLmw"
+# Gemini API key is directly in app.py for testing
+GEMINI_API_KEY = "AQ.Ab8RN6IvSeoXaFirJdp8J9OCS2PJiE9dNfqNmCgnqONlgl0wtA"
 gemini = genai.Client(api_key=GEMINI_API_KEY)
 
 
