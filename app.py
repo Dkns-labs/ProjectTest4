@@ -2,6 +2,8 @@ import os
 import json
 import sqlite3
 
+import requests
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
@@ -16,7 +18,7 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 
 DB = "resumeiq.db"
 UPLOADS = "uploads"
-MODEL = "gemini-3.6-flash"
+MODEL = "gemini-3.7-flash"
 
 os.makedirs(UPLOADS, exist_ok=True)
 
@@ -91,7 +93,7 @@ Analyze this resume for the job below.
 
 JOB TITLE: {job_title}
 COMPANY: {company or "Not provided"}
-SENIORITY: {seniority}
+SENIORITY: {seniority or "Not provided"}
 JOB DESCRIPTION:
 {job_description or "Not provided"}
 
@@ -108,21 +110,52 @@ Skills and suggestions must be lists.
 Suggestions must contain 3 practical suggestions.
 """
 
-    response = gemini.models.generate_content(
-        model=MODEL,
-        contents=prompt,
-        config={
-            "response_mime_type": "application/json"
-        }
+    url = (
+        "https://generativelanguage.googleapis.com/v1beta/"
+        f"models/{MODEL}:generateContent"
     )
 
-    text = (response.text or "").strip()
-    text = text.replace("```json", "").replace("```", "").strip()
+    response = requests.post(
+        url,
+        headers={"x-goog-api-key": GEMINI_API_KEY},
+        json={
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }],
+            "generationConfig": {
+                "responseMimeType": "application/json"
+            }
+        },
+        timeout=120
+    )
+
+    if response.status_code != 200:
+        try:
+            error = response.json().get("error", {})
+            message = error.get("message", response.text)
+        except ValueError:
+            message = response.text
+
+        raise ValueError(
+            f"Gemini API error {response.status_code}: {message}"
+        )
+
+    data = response.json()
+
+    try:
+        text = data["candidates"][0]["content"]["parts"][0]["text"]
+    except (KeyError, IndexError, TypeError):
+        raise ValueError("Gemini returned no usable text response.")
+
+    text = text.strip().replace("```json", "").replace("```", "").strip()
 
     if not text:
         raise ValueError("Gemini returned an empty response.")
 
-    return json.loads(text)
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as error:
+        raise ValueError(f"Gemini returned invalid JSON: {error}")
 
 
 def logged_in():
@@ -248,7 +281,7 @@ def analyzer():
 
     except Exception as error:
         print("AI analysis error:", repr(error))
-        flash("AI analysis failed. Please try again.")
+        flash(f"AI analysis failed: {error}")
         return render_template("analyzer.html", page="analyzer")
 
     connection = db()
