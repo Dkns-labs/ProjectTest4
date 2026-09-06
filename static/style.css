@@ -555,13 +555,6 @@ textarea:focus {
     width: 100%;
   }
 
-  .full-button {
-    width: 160px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-  }
-
   .mock {
     box-shadow: 6px 6px #dcd9d0;
   }
@@ -579,7 +572,20 @@ textarea:focus {
   }
 
   .auth-card {
+    width: 100%;
+    min-width: 0;
     padding: 24px;
+  }
+
+  .auth-card form,
+  .auth-card input {
+    min-width: 0;
+  }
+
+  .full-button {
+    width: 180px;
+    display: block;
+    margin: 22px auto 0;
   }
 
   .auth-card h1,
