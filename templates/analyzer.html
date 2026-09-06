@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,128 +11,112 @@
 <header>
     <div class="logo">Resume<span>IQ</span></div>
 
-    <input type="checkbox" id="menu-toggle">
-
-    <label class="menu-button" for="menu-toggle">
-        <span></span>
-        <span></span>
-        <span></span>
-    </label>
-
-    <nav class="menu">
-        <a href="{{ url_for('analyzer') }}">Analyzer</a>
-        <a href="{{ url_for('profile') }}">Profile</a>
-        <a href="{{ url_for('history') }}">History</a>
-        <a href="{{ url_for('logout') }}">Logout</a>
-    </nav>
+    <details class="menu">
+        <summary>☰</summary>
+        <div class="menu-box">
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        </div>
+    </details>
 </header>
 
-<main class="page">
-
-{% if page == "profile" %}
-
+{% if page == 'profile' %}
+<div class="page">
     <h1>Profile</h1>
-    <p class="subtitle">Your ResumeIQ account information.</p>
+    <p style="margin-bottom:24px;">Your ResumeIQ account information.</p>
 
-    <section class="card">
-        <div class="profile-item">
-            <span>First Name</span>
-            <strong>{{ user[0] }}</strong>
+    <div class="card">
+        <div class="profile-grid">
+            <div class="profile-item">
+                <small>First Name</small>
+                <strong>{{ user['first_name'] }}</strong>
+            </div>
+            <div class="profile-item">
+                <small>Last Name</small>
+                <strong>{{ user['last_name'] }}</strong>
+            </div>
+            <div class="profile-item">
+                <small>Username</small>
+                <strong>{{ user['username'] }}</strong>
+            </div>
+            <div class="profile-item">
+                <small>Email</small>
+                <strong>{{ user['email'] }}</strong>
+            </div>
         </div>
+    </div>
 
-        <div class="profile-item">
-            <span>Last Name</span>
-            <strong>{{ user[1] }}</strong>
-        </div>
+    <a href="{{ url_for('analyzer') }}" class="back">Back to Analyzer</a>
+</div>
 
-        <div class="profile-item">
-            <span>Username</span>
-            <strong>{{ user[2] }}</strong>
-        </div>
-
-        <div class="profile-item">
-            <span>Email</span>
-            <strong>{{ user[3] }}</strong>
-        </div>
-    </section>
-
-    <a class="big-button" href="{{ url_for('analyzer') }}">
-        Back to Analyzer
-    </a>
-
-{% elif page == "history" %}
-
+{% elif page == 'history' %}
+<div class="page">
     <h1>History</h1>
-    <p class="subtitle">Your previous resume analyses.</p>
+    <p style="margin-bottom:24px;">Your previous resume analyses.</p>
 
-    <section class="card">
+    <div class="card">
         {% if history %}
             {% for item in history %}
-                <a class="history-item" href="{{ url_for('report', history_id=item[0]) }}">
-                    <div>
-                        <strong>{{ item[1] or "Resume Analysis" }}</strong>
-                        <span>{{ item[2] or "No company" }}</span>
-                    </div>
-
-                    <b>{{ item[3] }}%</b>
-                </a>
+            <div class="history-item">
+                <div>
+                    <h3>{{ item['job_title'] }}</h3>
+                    <p>{{ item['company'] or 'Company not provided' }} · {{ item['created_at'] }}</p>
+                </div>
+                <a class="button-small" href="{{ url_for('report', history_id=item['id']) }}">View Report</a>
+            </div>
             {% endfor %}
         {% else %}
-            <p>No analysis history yet.</p>
+            <div class="empty">No resume analysis history yet.</div>
         {% endif %}
-    </section>
+    </div>
 
-    <a class="big-button" href="{{ url_for('analyzer') }}">
-        Back to Analyzer
-    </a>
+    <a href="{{ url_for('analyzer') }}" class="back">Back to Analyzer</a>
+</div>
 
 {% else %}
-
+<div class="page">
     <h1>Resume Analyzer</h1>
-    <p class="subtitle">
-        Analyze your resume against a job description with AI.
-    </p>
+    <p style="margin-bottom:24px;">Upload your resume and fill in the job details below.</p>
 
     {% with messages = get_flashed_messages() %}
         {% for message in messages %}
-            <div class="message">{{ message }}</div>
+            <div class="flash">{{ message }}</div>
         {% endfor %}
     {% endwith %}
 
-    <section class="card">
-        <form method="POST"
-              action="{{ url_for('analyzer') }}"
-              enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
+        <div class="upload">
+            <h2>Upload Resume</h2>
+            <p>PDF or DOCX</p>
+            <br>
+            <input type="file" name="resume" accept=".pdf,.docx" required>
+        </div>
+
+        <div class="card">
+            <h2>Job Details</h2>
 
             <label>Job Title</label>
-            <input type="text" name="job_title" required>
+            <input type="text" name="job_title" placeholder="Data Analyst" required>
 
-            <label>Company</label>
-            <input type="text" name="company">
+            <label>Company (optional)</label>
+            <input type="text" name="company" placeholder="e.g. Google, Stripe...">
 
-            <label>Seniority</label>
+            <label>Seniority Level</label>
             <select name="seniority">
                 <option>Entry Level</option>
-                <option>Mid Level</option>
-                <option>Senior Level</option>
+                <option selected>Mid (2-5 yrs)</option>
+                <option>Senior (5+ yrs)</option>
             </select>
 
             <label>Job Description</label>
-            <textarea name="job_description" rows="8" required></textarea>
+            <textarea name="job_description" rows="6" placeholder="Paste the full job posting here..."></textarea>
+        </div>
 
-            <label>Resume</label>
-            <input type="file"
-                   name="resume"
-                   accept=".pdf,.docx"
-                   required>
-
-            <button type="submit">Analyze Resume</button>
-        </form>
-    </section>
-
+        <button type="submit" class="generate">Generate AI Report</button>
+    </form>
+</div>
 {% endif %}
-
-</main>
 
 </body>
 </html>

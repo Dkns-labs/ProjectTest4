@@ -1,30 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeIQ - Not Registered</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ResumeIQ - Account Not Registered</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
 <body>
-
-<header>
-    <div class="logo">Resume<span>IQ</span></div>
-    <a class="header-button" href="{{ url_for('register') }}">Register</a>
-</header>
-
-<main class="page center">
-    <section class="card message-card">
-        <h1>Account Not Registered</h1>
-        <p class="subtitle">
-            This account is not registered. Please register it first.
-        </p>
-
-        <a class="big-button" href="{{ url_for('register') }}">
-            Register
-        </a>
-    </section>
-</main>
-
-</body>
-</html>
+<header><div class="logo">Resume<span>IQ</span></div><a href="{{ url_for('login') }}" class="nav-btn">Login</a></header>
+<div class="page center-page"><div class="login-card">
+<h1>Account Not Registered</h1>
+<div class="message"><p>This account is not registered. Please register it first.</p></div>
+<a href="{{ url_for('register') }}" class="nav-btn generate">Register Now</a>
+<a href="{{ url_for('login') }}" class="back">Back to Login</a>
+</div></div>
+</body></html>

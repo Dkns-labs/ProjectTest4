@@ -1,57 +1,19 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ResumeIQ - Register</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>ResumeIQ - Register</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
 <body>
-
-<header>
-    <div class="logo">Resume<span>IQ</span></div>
-    <a class="header-button" href="{{ url_for('login') }}">Login</a>
-</header>
-
-<main class="page center">
-    <section class="card auth-card">
-        <h1>Create Account</h1>
-        <p class="subtitle">Create your ResumeIQ account.</p>
-
-        {% with messages = get_flashed_messages() %}
-            {% for message in messages %}
-                <div class="message">{{ message }}</div>
-            {% endfor %}
-        {% endwith %}
-
-        <form method="POST" action="{{ url_for('register') }}">
-            <label>First Name</label>
-            <input type="text" name="first_name" required>
-
-            <label>Last Name</label>
-            <input type="text" name="last_name" required>
-
-            <label>Username</label>
-            <input type="text" name="username" required>
-
-            <label>Email</label>
-            <input type="email" name="email" required>
-
-            <label>Password</label>
-            <input type="password" name="password" required>
-
-            <label>Confirm Password</label>
-            <input type="password" name="confirm_password" required>
-
-            <button type="submit">Register</button>
-        </form>
-
-        <p>
-            Already have an account?
-            <a href="{{ url_for('login') }}">Back to Login</a>
-        </p>
-    </section>
-</main>
-
-</body>
-</html>
+<header><div class="logo">Resume<span>IQ</span></div><a href="{{ url_for('login') }}" class="nav-btn">Login</a></header>
+<div class="page"><div class="register-card">
+<h1>Register</h1><p style="margin-bottom:20px;">Create your ResumeIQ account.</p>
+{% with messages = get_flashed_messages() %}{% for message in messages %}<div class="flash">{{ message }}</div>{% endfor %}{% endwith %}
+<form method="post">
+<label>First Name</label><input type="text" name="first_name" placeholder="First Name" required>
+<label>Last Name</label><input type="text" name="last_name" placeholder="Last Name" required>
+<label>Username</label><input type="text" name="username" placeholder="Username" required>
+<label>Email</label><input type="email" name="email" placeholder="you@gmail.com" required>
+<label>Password</label><input type="password" name="password" placeholder="Password" required>
+<label>Confirm Password</label><input type="password" name="confirm_password" placeholder="Confirm Password" required>
+<button type="submit">Register</button>
+</form>
+<p class="register-line">Already have an account? <a href="{{ url_for('login') }}">Login here</a></p>
+</div></div>
+</body></html>

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,83 +10,81 @@
 
 <header>
     <div class="logo">Resume<span>IQ</span></div>
-    <a class="header-button" href="{{ url_for('analyzer') }}">
-        Analyzer
-    </a>
+    <details class="menu">
+        <summary>☰</summary>
+        <div class="menu-box">
+            <a href="{{ url_for('profile') }}">Profile</a>
+            <a href="{{ url_for('history') }}">History</a>
+            <a href="{{ url_for('logout') }}" class="logout">Logout</a>
+        </div>
+    </details>
 </header>
 
-<main class="page">
+<div class="page">
+    <h1>Resume Report</h1>
+    <p style="margin-bottom:24px;">Your AI resume analysis is ready for <strong>{{ item['job_title'] }}</strong>.</p>
 
-    <h1>Resume Analysis</h1>
-
-    <p class="subtitle">
-        {{ item[1] }}
-        {% if item[2] %}
-            · {{ item[2] }}
-        {% endif %}
-    </p>
-
-    <section class="score-box">
-        <strong>{{ result.get("score", item[3]) }}%</strong>
-        <span>Overall Match Score</span>
-    </section>
-
-    <div class="grid">
-        <div class="small-card">
-            <span>ATS Score</span>
-            <strong>{{ result.get("ats_score", 0) }}%</strong>
-        </div>
-
-        <div class="small-card">
-            <span>Skills Match</span>
-            <strong>{{ result.get("skills_match", 0) }}%</strong>
-        </div>
-
-        <div class="small-card">
-            <span>Keyword Density</span>
-            <strong>{{ result.get("keyword_density", 0) }}%</strong>
-        </div>
-
-        <div class="small-card">
-            <span>Experience Fit</span>
-            <strong>{{ result.get("experience_fit", 0) }}%</strong>
-        </div>
+    <div class="score-card">
+        <h1>{{ result.get('score', item['score']) }}%</h1>
+        <p>Overall Resume Match</p>
     </div>
 
-    {% for title, key in [
-        ("Confirmed Skills", "confirmed_skills"),
-        ("Partial Skills", "partial_skills"),
-        ("Missing Skills", "missing_skills"),
-        ("Suggestions", "suggestions")
-    ] %}
+    <div class="grid-2">
+        <div class="metric"><h2>{{ result.get('ats_score', 0) }}%</h2><p>ATS Score</p></div>
+        <div class="metric"><h2>{{ result.get('skills_match', 0) }}%</h2><p>Skills Match</p></div>
+        <div class="metric"><h2>{{ result.get('keyword_density', 0) }}%</h2><p>Keyword Density</p></div>
+        <div class="metric"><h2>{{ result.get('experience_fit', 0) }}%</h2><p>Experience Fit</p></div>
+    </div>
 
-        <section class="card">
-            <h2>{{ title }}</h2>
+    <div class="card">
+        <h2>Skills Detected</h2>
 
-            <ul>
-                {% for item in result.get(key, []) %}
-                    <li>{{ item }}</li>
-                {% else %}
-                    <li>None returned.</li>
-                {% endfor %}
-            </ul>
-        </section>
+        <span class="tag-label">CONFIRMED</span>
+        {% for skill in result.get('confirmed_skills', []) %}
+            <span class="tag good">{{ skill }}</span>
+        {% else %}
+            <p>No confirmed skills returned.</p>
+        {% endfor %}
 
-    {% endfor %}
+        <span class="tag-label">PARTIAL</span>
+        {% for skill in result.get('partial_skills', []) %}
+            <span class="tag">{{ skill }}</span>
+        {% else %}
+            <p>No partial skills returned.</p>
+        {% endfor %}
 
-    <section class="card">
-        <h2>Experience Summary</h2>
-        <p>{{ result.get("experience_summary", "") }}</p>
+        <span class="tag-label">MISSING</span>
+        {% for skill in result.get('missing_skills', []) %}
+            <span class="tag missing">{{ skill }}</span>
+        {% else %}
+            <p>No missing skills returned.</p>
+        {% endfor %}
+    </div>
 
-        <h2>Education Summary</h2>
-        <p>{{ result.get("education_summary", "") }}</p>
-    </section>
+    <div class="card">
+        <h2>Suggestions</h2>
+        {% for suggestion in result.get('suggestions', []) %}
+            <div class="suggestion">
+                <h3>{{ loop.index }}. {{ suggestion }}</h3>
+            </div>
+        {% else %}
+            <p>No suggestions returned.</p>
+        {% endfor %}
+    </div>
 
-    <a class="big-button" href="{{ url_for('history') }}">
-        View History
-    </a>
+    <div class="card">
+        <h2>Experience</h2>
+        <p>{{ result.get('experience_summary', 'No experience summary returned.') }}</p>
+        <h3 class="fit">Experience Fit: {{ result.get('experience_fit', 0) }}%</h3>
+    </div>
 
-</main>
+    <div class="card">
+        <h2>Education</h2>
+        <p>{{ result.get('education_summary', 'No education summary returned.') }}</p>
+    </div>
+
+    <a href="{{ url_for('analyzer') }}" class="back">Back — Analyze Another Resume</a>
+</div>
 
 </body>
 </html>
