@@ -74,7 +74,7 @@ create_database()
 # GEMINI
 # -----------------------------
 
-API_KEY = os.environ.get("GEMINI_API_KEY")
+API_KEY = "AQ.Ab8RN6JBcn4BF-QeuTFhDu-nb5-bg5CChxVbYztfHQjThgoLmw"
 
 if API_KEY:
     gemini = genai.Client(api_key=API_KEY)
