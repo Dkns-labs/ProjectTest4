@@ -9,30 +9,24 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from docx import Document
 
+
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY")
-if not app.secret_key:
-    raise RuntimeError("SECRET_KEY environment variable is required.")
+app.secret_key = os.environ.get("SECRET_KEY", "resumeiq-secret-key")
 
 DATABASE = "resumeiq.db"
 UPLOAD_FOLDER = "uploads"
-ALLOWED_EXTENSIONS = {".pdf", ".docx"}
-MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
-app.config["MAX_CONTENT_LENGTH"] = MAX_CONTENT_LENGTH
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
-# Gemini API key is read only from Render Environment Variables.
+
+# Gemini testing key
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.6-flash")
 
-if not GEMINI_API_KEY:
-    raise RuntimeError("GEMINI_API_KEY environment variable is required.")
-
-gemini = genai.Client(api_key=GEMINI_API_KEY)
 
 def get_db():
     return sqlite3.connect(DATABASE)
+
 
 def create_tables():
     db = get_db()
@@ -63,20 +57,19 @@ def create_tables():
     db.commit()
     db.close()
 
+
 create_tables()
+
 
 def is_logged_in():
     return "user_id" in session
+
 
 def read_resume(file):
     filename = secure_filename(file.filename)
 
     if not filename:
         raise ValueError("Please select a resume.")
-
-    extension = os.path.splitext(filename)[1].lower()
-    if extension not in ALLOWED_EXTENSIONS:
-        raise ValueError("Only PDF and DOCX files are supported.")
 
     path = os.path.join(UPLOAD_FOLDER, filename)
     file.save(path)
@@ -91,7 +84,12 @@ def read_resume(file):
 
     raise ValueError("Only PDF and DOCX files are supported.")
 
+
 def analyze_resume(resume, job_title, company, seniority, job_description):
+    if not GEMINI_API_KEY:
+        raise RuntimeError("GEMINI_API_KEY is not configured.")
+
+    gemini = genai.Client(api_key=GEMINI_API_KEY)
     prompt = f"""
 You are an ATS resume analyzer.
 
@@ -134,12 +132,13 @@ suggestions must contain exactly 3 items.
 
     return json.loads(text)
 
+
 @app.route("/")
 def home():
     if is_logged_in():
         return redirect(url_for("analyzer"))
+    return render_template("index.html")
 
-    return redirect(url_for("login"))
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -167,6 +166,7 @@ def login():
     session["username"] = user[3]
 
     return redirect(url_for("analyzer"))
+
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -213,13 +213,16 @@ def register():
 
     return redirect(url_for("registered"))
 
+
 @app.route("/registered")
 def registered():
     return render_template("registered.html")
 
+
 @app.route("/not-registered")
 def not_registered():
     return render_template("not_registered.html")
+
 
 @app.route("/analyzer", methods=["GET", "POST"])
 def analyzer():
@@ -281,6 +284,7 @@ def analyzer():
 
     return redirect(url_for("report", history_id=history_id))
 
+
 @app.route("/history")
 def history():
     if not is_logged_in():
@@ -302,6 +306,7 @@ def history():
 
     return render_template("analyzer.html", page="history", history=records)
 
+
 @app.route("/profile")
 def profile():
     if not is_logged_in():
@@ -321,6 +326,7 @@ def profile():
     db.close()
 
     return render_template("analyzer.html", page="profile", user=user)
+
 
 @app.route("/report/<int:history_id>")
 def report(history_id):
@@ -351,10 +357,12 @@ def report(history_id):
         result=result
     )
 
+
 @app.route("/logout")
 def logout():
     session.clear()
     return redirect(url_for("login"))
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
