@@ -1,14 +1,1 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ResumeIQ — Registered</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
-<body>
-<header><div class="logo">Resume<span>IQ</span>
-</div><div class="header-actions">
-<input type="checkbox" id="theme-toggle">
-<label class="theme-toggle" for="theme-toggle">Dark mode</label>
-</div>
-</header>
-<main class="page center">
-    <section class="card message-card"><h1>Account Registered</h1><p class="subtitle">Your account has been created successfully. Please return to the login page.</p><a class="big-button" href="{{ url_for('login') }}">Back to Login</a>
-    </section>
-</main></body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ResumeIQ — Account Created</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body><header><div class="header-inner"><a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a></div></header><main class="center"><section class="card auth" style="text-align:center"><span class="kicker">All set</span><h1>Account created.</h1><p class="subtitle" style="margin-inline:auto">Your ResumeIQ account is ready.</p><a class="button primary" href="{{ url_for('login') }}">Back to Login</a></section></main></body></html>

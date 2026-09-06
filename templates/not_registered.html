@@ -1,14 +1,1 @@
-<!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>ResumeIQ — Not Registered</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head>
-<body>
-<header><div class="logo">Resume<span>IQ</span>
-</div><div class="header-actions">
-<input type="checkbox" id="theme-toggle">
-<label class="theme-toggle" for="theme-toggle">Dark mode</label><a class="header-button" href="{{ url_for('register') }}">Register</a>
-</div>
-</header>
-<main class="page center">
-    <section class="card message-card"><h1>Account Not Registered</h1><p class="subtitle">This email is not registered. Please create an account first.</p><a class="big-button" href="{{ url_for('register') }}">Create Account</a>
-    </section>
-</main></body>
-</html>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ResumeIQ — Account Not Found</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body><header><div class="header-inner"><a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a><a class="header-button" href="{{ url_for('register') }}">Create Account</a></div></header><main class="center"><section class="card auth" style="text-align:center"><span class="kicker">Account not found</span><h1>Create your account.</h1><p class="subtitle" style="margin-inline:auto">This email is not registered yet.</p><a class="button primary" href="{{ url_for('register') }}">Create Account</a></section></main></body></html>
