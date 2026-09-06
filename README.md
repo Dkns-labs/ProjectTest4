@@ -1,8 +1,14 @@
-# ResumeIQ - Flask + SQLite + Gemini
+# ResumeIQ - Flask + SQLite + Gemini AI
 
-Basic ResumeIQ application using Flask, SQLite, HTML/CSS and Gemini AI.
+ResumeIQ is a basic Flask application using HTML, CSS, SQLite and Gemini AI.
 
-## Install
+## Why Netlify was removed
+
+This project uses Flask/Python for the backend. Netlify Functions do not provide a Python serverless runtime, so a Flask app cannot be deployed there as a Python Function. The previous Netlify setup therefore resulted in the Netlify 404 page.
+
+This version is configured for Render, which supports Flask/Python web services.
+
+## Install locally
 
 ```bash
 pip install -r requirements.txt
@@ -10,7 +16,7 @@ pip install -r requirements.txt
 
 ## Gemini API key
 
-Set the environment variable `GEMINI_API_KEY` before starting Flask.
+Set `GEMINI_API_KEY` as an environment variable.
 
 Windows PowerShell:
 
@@ -26,32 +32,40 @@ export GEMINI_API_KEY="YOUR_GEMINI_API_KEY"
 python app.py
 ```
 
-The app uses the Gemini model `gemini-3.6-flash`.
-
-## Run
+## Run locally
 
 ```bash
 python app.py
 ```
 
-Then open the local Flask address shown in the terminal.
+## Render deployment
+
+Create a **Web Service** and connect this project/repository.
+
+Use:
+
+- Runtime: Python 3
+- Build Command: `pip install -r requirements.txt`
+- Start Command: `gunicorn app:app`
+
+Add these environment variables in Render:
+
+- `GEMINI_API_KEY` = your Gemini API key
+- `SECRET_KEY` = any long random secret string
+
+Render's Flask deployment documentation uses the same basic `pip install -r requirements.txt` and `gunicorn app:app` setup.
 
 ## Features
 
 - Register and login
 - Account-not-registered message
 - Password hashing
-- CSS-only three-bar menu after login
+- CSS-only three-bar menu
 - Profile
+- History
 - Logout
-- SQLite analysis history
-- PDF and DOCX text extraction
-- Gemini AI resume analysis
+- SQLite history
+- PDF and DOCX resume reading
+- Gemini AI analysis
 - AI-generated report
 - No JavaScript required
-
-## Netlify
-
-`netlify/functions/api.py` provides the Netlify function wrapper. Set `GEMINI_API_KEY` and `SECRET_KEY` in Netlify environment variables.
-
-SQLite is suitable for local/basic use. A persistent hosted database is recommended for production serverless deployment.

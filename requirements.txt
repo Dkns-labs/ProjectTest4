@@ -4,3 +4,5 @@ google-genai>=1.0
 pypdf>=5.0
 python-docx>=1.1
 serverless-wsgi>=3.0,<4
+
+gunicorn>=23,<24
