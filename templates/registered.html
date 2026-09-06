@@ -1,1 +1,14 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ResumeIQ — Account Created</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body><header><div class="header-inner"><a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a></div></header><main class="center"><section class="card auth" style="text-align:center"><span class="kicker">All set</span><h1>Account created.</h1><p class="subtitle" style="margin-inline:auto">Your ResumeIQ account is ready.</p><a class="button primary" href="{{ url_for('login') }}">Back to Login</a></section></main></body></html>
+{% extends "base.html" %}
+{% block title %}ResumeIQ — Account Created{% endblock %}
+{% block content %}
+<main class="center-page">
+    <section class="auth-layout narrow">
+        <div class="auth-form">
+            <span class="kicker">All set</span>
+            <h2>Your account is ready.</h2>
+            <p class="subtitle">Log in and start your first resume analysis.</p>
+            <a class="button primary" href="{{ url_for('login') }}">Continue to Login</a>
+        </div>
+    </section>
+</main>
+{% endblock %}

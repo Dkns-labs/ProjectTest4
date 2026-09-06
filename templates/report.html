@@ -1,1 +1,30 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ResumeIQ — Report</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body><header><div class="header-inner"><a class="logo" href="{{ url_for('analyzer') }}">Resume<span>IQ</span></a><nav class="nav"><a href="{{ url_for('history') }}">History</a><a class="header-button" href="{{ url_for('analyzer') }}">New Analysis</a></nav><details class="mobile-nav"><summary>Menu</summary><nav><a href="{{ url_for('history') }}">History</a><a href="{{ url_for('analyzer') }}">New Analysis</a></nav></details></div></header><main class="page"><div class="container narrow"><span class="kicker">Analysis report</span><h1 style="font-size:48px;letter-spacing:-2.5px;margin:8px 0">{{ item[1] }}</h1><p class="subtitle">{% if item[2] %}{{ item[2] }} · {% endif %}Resume match results</p><section class="score-box"><strong>{{ result.get("score",item[3]) }}%</strong><span>Overall Match Score</span></section><div class="grid">{% for label,key in [('ATS Score','ats_score'),('Skills Match','skills_match'),('Keyword Density','keyword_density'),('Experience Fit','experience_fit')] %}<div class="small-card"><span>{{ label }}</span><strong>{{ result.get(key,0) }}%</strong></div>{% endfor %}</div>{% for title,key in [('Confirmed Skills','confirmed_skills'),('Partial Skills','partial_skills'),('Missing Skills','missing_skills'),('Suggestions','suggestions')] %}<section class="card"><h2>{{ title }}</h2><ul class="list">{% for value in result.get(key,[]) %}<li>{{ value }}</li>{% else %}<li>None returned.</li>{% endfor %}</ul></section>{% endfor %}<section class="card"><h2>Experience Summary</h2><p>{{ result.get("experience_summary","") }}</p><h2>Education Summary</h2><p>{{ result.get("education_summary","") }}</p></section><a class="button primary" href="{{ url_for('history') }}">View History</a></div></main></body></html>
+{% extends "base.html" %}
+{% block title %}ResumeIQ — Report{% endblock %}
+{% block header %}
+<nav class="nav"><a href="{{ url_for('history') }}">History</a><a class="header-button" href="{{ url_for('analyzer') }}">New Analysis</a></nav>
+{% endblock %}
+{% block content %}
+<main class="page">
+    <div class="container narrow">
+        <span class="kicker">Analysis report</span>
+        <h1 class="report-title">{{ item[1] }}</h1>
+        <p class="subtitle">{% if item[2] %}{{ item[2] }} · {% endif %}Resume match results</p>
+
+        <section class="report-score"><strong>{{ result.get("score", item[3]) }}%</strong><span>Overall Match Score</span></section>
+        <div class="metrics">
+            {% for label, key in [("ATS Score", "ats_score"), ("Skills Match", "skills_match"), ("Keyword Density", "keyword_density"), ("Experience Fit", "experience_fit")] %}
+                <div class="metric"><span>{{ label }}</span><strong>{{ result.get(key, 0) }}%</strong></div>
+            {% endfor %}
+        </div>
+
+        {% for title, key in [("Confirmed Skills", "confirmed_skills"), ("Partial Skills", "partial_skills"), ("Missing Skills", "missing_skills"), ("Suggestions", "suggestions")] %}
+            <section class="report-block"><h2>{{ title }}</h2><ul class="list">{% for value in result.get(key, []) %}<li>{{ value }}</li>{% else %}<li>None returned.</li>{% endfor %}</ul></section>
+        {% endfor %}
+        <section class="report-block">
+            <h2>Experience Summary</h2><p class="report-copy">{{ result.get("experience_summary", "") }}</p>
+            <h2>Education Summary</h2><p class="report-copy">{{ result.get("education_summary", "") }}</p>
+        </section>
+        <div class="actions"><a class="button primary" href="{{ url_for('history') }}">View History</a><a class="button" href="{{ url_for('analyzer') }}">Run Another</a></div>
+    </div>
+</main>
+{% endblock %}

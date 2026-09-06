@@ -1,5 +1,63 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ResumeIQ — AI Resume Analysis</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body>
-<header><div class="header-inner"><a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a><nav class="nav"><a href="{{ url_for('login') }}">Login</a><a class="header-button" href="{{ url_for('register') }}">Create Account</a></nav><details class="mobile-nav"><summary>Menu</summary><nav><a href="{{ url_for('login') }}">Login</a><a href="{{ url_for('register') }}">Create Account</a></nav></details></div></header>
-<main><section class="hero"><div class="container hero-grid"><div><span class="eyebrow">AI Resume Analysis</span><h1>Make your resume work harder.</h1><p>Upload your resume, compare it with a job description, and discover your match score, relevant skills, and practical improvements.</p><div class="actions"><a class="button primary" href="{{ url_for('login') }}">Analyze Resume</a><a class="button" href="{{ url_for('register') }}">Create Account</a></div></div>
-<div class="mock"><div class="mock-bar"><i></i><i></i><i></i></div><div class="mock-body"><h2>Resume Match</h2><small>Python Developer</small><div class="score"><strong>82%</strong><small>Resume match</small><div class="bar"><span></span></div></div><div class="mock-row"><span>Skills matched</span><b>18</b></div><div class="mock-row"><span>Experience</span><b>Strong</b></div><div class="mock-row"><span>Suggestions</span><b>6</b></div></div></div></div></section>
-<section class="section"><div class="container"><h2 class="section-title">Everything you need to improve your resume.</h2><p class="section-copy">Simple tools designed to help you understand your resume against a real job.</p><div class="features"><article class="feature"><div class="icon">%</div><h3>Match Score</h3><p>Quickly understand how closely your resume matches the requirements of a job.</p></article><article class="feature"><div class="icon">✓</div><h3>Skill Analysis</h3><p>Find relevant skills already present and identify important gaps.</p></article><article class="feature"><div class="icon">+</div><h3>Actionable Feedback</h3><p>Get practical suggestions that can help make your resume more effective.</p></article></div></div></section></main><footer><div class="container">ResumeIQ · Simple resume analysis for better applications.</div></footer></body></html>
+{% extends "base.html" %}
+{% block title %}ResumeIQ — Smarter Resume Analysis{% endblock %}
+{% block content %}
+<main>
+    <section class="hero">
+        <div class="container hero-grid">
+            <div>
+                <span class="eyebrow">AI Resume Analysis</span>
+                <h1>Turn your resume into a stronger application.</h1>
+                <p class="hero-copy">Compare your resume with a real job description and get a clear score, skill gaps, and practical improvements.</p>
+                <div class="actions">
+                    <a class="button primary" href="{{ url_for('login') }}">Analyze Resume</a>
+                    <a class="button" href="{{ url_for('register') }}">Create Account</a>
+                </div>
+            </div>
+
+            <div class="preview">
+                <div class="preview-window">
+                    <div class="preview-bar"><i></i><i></i><i></i></div>
+                    <div class="preview-content">
+                        <h2 class="preview-title">Resume Match</h2>
+                        <span class="preview-muted">Python Developer</span>
+                        <div class="preview-score">
+                            <strong>82%</strong>
+                            <span class="preview-muted">Overall match</span>
+                            <div class="progress"><span></span></div>
+                        </div>
+                        <div class="preview-row"><span>Skills matched</span><b>18</b></div>
+                        <div class="preview-row"><span>Experience fit</span><b>Strong</b></div>
+                        <div class="preview-row"><span>Suggestions</span><b>3</b></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section">
+        <div class="container">
+            <span class="kicker">What you get</span>
+            <h2 class="section-title">Everything important, without the clutter.</h2>
+            <p class="section-copy">A focused workflow for understanding and improving your resume.</p>
+            <div class="features">
+                <article class="feature">
+                    <div class="feature-icon">01</div>
+                    <h3>Match Score</h3>
+                    <p>See how closely your resume fits the role before you apply.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon">02</div>
+                    <h3>Skill Gaps</h3>
+                    <p>Separate confirmed, partial, and missing skills at a glance.</p>
+                </article>
+                <article class="feature">
+                    <div class="feature-icon">03</div>
+                    <h3>Clear Actions</h3>
+                    <p>Get practical recommendations instead of vague resume advice.</p>
+                </article>
+            </div>
+        </div>
+    </section>
+</main>
+{% endblock %}
+{% block footer %}<footer class="site-footer"><div class="container">ResumeIQ · Build a better application.</div></footer>{% endblock %}

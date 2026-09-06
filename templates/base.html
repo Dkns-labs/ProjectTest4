@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#f7f7f5">
+    <title>{% block title %}ResumeIQ{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="site-header">
+    <div class="header-inner">
+        <a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a>
+        {% block header %}
+        <nav class="nav">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a class="header-button" href="{{ url_for('register') }}">Create Account</a>
+        </nav>
+        {% endblock %}
+    </div>
+</header>
+{% block content %}{% endblock %}
+{% block footer %}{% endblock %}
+</body>
+</html>

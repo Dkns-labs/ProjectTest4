@@ -1,1 +1,14 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ResumeIQ — Account Not Found</title><link rel="stylesheet" href="{{ url_for('static',filename='style.css') }}"></head><body><header><div class="header-inner"><a class="logo" href="{{ url_for('home') }}">Resume<span>IQ</span></a><a class="header-button" href="{{ url_for('register') }}">Create Account</a></div></header><main class="center"><section class="card auth" style="text-align:center"><span class="kicker">Account not found</span><h1>Create your account.</h1><p class="subtitle" style="margin-inline:auto">This email is not registered yet.</p><a class="button primary" href="{{ url_for('register') }}">Create Account</a></section></main></body></html>
+{% extends "base.html" %}
+{% block title %}ResumeIQ — Account Not Found{% endblock %}
+{% block content %}
+<main class="center-page">
+    <section class="auth-layout narrow">
+        <div class="auth-form">
+            <span class="kicker">Account not found</span>
+            <h2>Create your workspace.</h2>
+            <p class="subtitle">That email is not registered yet. Start a new ResumeIQ account.</p>
+            <a class="button primary" href="{{ url_for('register') }}">Create Account</a>
+        </div>
+    </section>
+</main>
+{% endblock %}
