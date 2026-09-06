@@ -555,6 +555,13 @@ textarea:focus {
     width: 100%;
   }
 
+  .full-button {
+    width: 160px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .mock {
     box-shadow: 6px 6px #dcd9d0;
   }
