@@ -1,14 +1,3 @@
 {% extends "base.html" %}
 {% block title %}ResumeIQ — Account Not Found{% endblock %}
-{% block content %}
-<main class="center-page">
-    <section class="auth-layout narrow">
-        <div class="auth-form">
-            <span class="kicker">Account not found</span>
-            <h2>Create your workspace.</h2>
-            <p class="subtitle">That email is not registered yet. Start a new ResumeIQ account.</p>
-            <a class="button primary" href="{{ url_for('register') }}">Create Account</a>
-        </div>
-    </section>
-</main>
-{% endblock %}
+{% block content %}<main class="auth-page"><section class="auth-card"><div class="eyebrow">Not found</div><h1>Let's start fresh.</h1><p class="muted big-text">That email is not registered yet.</p><a class="button blue full-link" href="{{ url_for('register') }}">Create an account</a></section></main>{% endblock %}

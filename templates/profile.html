@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}ResumeIQ — Profile{% endblock %}
+{% block nav %}<nav><a href="{{ url_for('analyzer') }}">Analyzer</a><a href="{{ url_for('history') }}">History</a><a href="{{ url_for('profile') }}">Profile</a><a class="nav-button" href="{{ url_for('logout') }}">Logout</a></nav>{% endblock %}
+{% block content %}
+<main class="dashboard wrap">
+    <div class="eyebrow">Workspace / Profile</div><h1>Your details.</h1><p class="muted big-text">The account information connected to your ResumeIQ workspace.</p>
+    <section class="profile-grid">
+        <div class="profile-item"><span>First name</span><strong>{{ user['first_name'] }}</strong></div>
+        <div class="profile-item"><span>Last name</span><strong>{{ user['last_name'] }}</strong></div>
+        <div class="profile-item"><span>Username</span><strong>{{ user['username'] }}</strong></div>
+        <div class="profile-item"><span>Email</span><strong>{{ user['email'] }}</strong></div>
+    </section>
+</main>
+{% endblock %}

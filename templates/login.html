@@ -1,31 +1,20 @@
 {% extends "base.html" %}
 {% block title %}ResumeIQ — Login{% endblock %}
 {% block content %}
-<main class="center-page">
-    <section class="auth-layout">
-        <div class="auth-intro">
-            <div class="auth-mark">IQ</div>
-            <div>
-                <span class="kicker">Welcome back</span>
-                <h1>Get back to better applications.</h1>
-                <p>Your previous analyses, scores, and resume insights stay in one simple workspace.</p>
-            </div>
-        </div>
-        <div class="auth-form">
-            <h2>Login</h2>
-            <p class="subtitle">Continue to your ResumeIQ workspace.</p>
-            {% with messages = get_flashed_messages() %}
-                {% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}
-            {% endwith %}
-            <form method="post">
-                <label for="email">Email</label>
-                <input id="email" type="email" name="email" autocomplete="email" required>
-                <label for="password">Password</label>
-                <input id="password" type="password" name="password" autocomplete="current-password" required>
-                <button type="submit">Login</button>
-            </form>
-            <p class="auth-links">New to ResumeIQ? <a href="{{ url_for('register') }}">Create an account</a></p>
-        </div>
+<main class="auth-page">
+    <section class="auth-card">
+        <div class="eyebrow">Welcome back</div>
+        <h1>Sign in.</h1>
+        <p class="muted big-text">Open your ResumeIQ workspace.</p>
+        {% with messages = get_flashed_messages() %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endwith %}
+        <form method="post">
+            <label for="email">Email</label>
+            <input id="email" type="email" name="email" required>
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password" required>
+            <button class="full-button" type="submit">Sign in</button>
+        </form>
+        <p class="form-link">New here? <a href="{{ url_for('register') }}">Create an account</a></p>
     </section>
 </main>
 {% endblock %}

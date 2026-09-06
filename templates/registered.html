@@ -1,14 +1,3 @@
 {% extends "base.html" %}
 {% block title %}ResumeIQ — Account Created{% endblock %}
-{% block content %}
-<main class="center-page">
-    <section class="auth-layout narrow">
-        <div class="auth-form">
-            <span class="kicker">All set</span>
-            <h2>Your account is ready.</h2>
-            <p class="subtitle">Log in and start your first resume analysis.</p>
-            <a class="button primary" href="{{ url_for('login') }}">Continue to Login</a>
-        </div>
-    </section>
-</main>
-{% endblock %}
+{% block content %}<main class="auth-page"><section class="auth-card"><div class="eyebrow">Done</div><h1>You're ready.</h1><p class="muted big-text">Your ResumeIQ account has been created.</p><a class="button blue full-link" href="{{ url_for('login') }}">Continue to sign in</a></section></main>{% endblock %}

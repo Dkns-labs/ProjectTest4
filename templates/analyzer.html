@@ -1,74 +1,39 @@
 {% extends "base.html" %}
-{% block title %}ResumeIQ — {% if page == 'history' %}History{% elif page == 'profile' %}Profile{% else %}Analyzer{% endif %}{% endblock %}
-{% block header %}
-<nav class="nav">
-    <a href="{{ url_for('analyzer') }}">Analyzer</a>
-    <a href="{{ url_for('history') }}">History</a>
-    <a href="{{ url_for('profile') }}">Profile</a>
-    <a class="header-button" href="{{ url_for('logout') }}">Logout</a>
-</nav>
+{% block title %}ResumeIQ — Analyzer{% endblock %}
+{% block nav %}
+<nav><a href="{{ url_for('analyzer') }}">Analyzer</a><a href="{{ url_for('history') }}">History</a><a href="{{ url_for('profile') }}">Profile</a><a class="nav-button" href="{{ url_for('logout') }}">Logout</a></nav>
 {% endblock %}
 {% block content %}
-<main class="page">
-    <div class="container">
-        {% if page == 'history' %}
-            <div class="dashboard-top">
-                <div><span class="kicker">Your workspace</span><h1>History</h1><p class="subtitle">Review your previous resume analyses.</p></div>
-                <div class="dashboard-actions"><a class="button primary" href="{{ url_for('analyzer') }}">New Analysis</a></div>
-            </div>
-            <section class="card table-list">
-                {% if history %}
-                    {% for item in history %}
-                        <a class="history-item" href="{{ url_for('report', history_id=item[0]) }}">
-                            <div><strong>{{ item[1] or 'Resume Analysis' }}</strong><span>{{ item[2] or 'No company' }} · {{ item[4] }}</span></div>
-                            <b class="history-score">{{ item[3] }}%</b>
-                        </a>
-                    {% endfor %}
-                {% else %}<p class="empty">No analyses yet. Start your first one.</p>{% endif %}
-            </section>
-
-        {% elif page == 'profile' %}
-            <div class="dashboard-top">
-                <div><span class="kicker">Your workspace</span><h1>Profile</h1><p class="subtitle">Your ResumeIQ account details.</p></div>
-            </div>
-            <section class="card">
-                <div class="profile-grid">
-                    <div class="profile-item"><span>First Name</span><strong>{{ user[0] }}</strong></div>
-                    <div class="profile-item"><span>Last Name</span><strong>{{ user[1] }}</strong></div>
-                    <div class="profile-item"><span>Username</span><strong>{{ user[2] }}</strong></div>
-                    <div class="profile-item"><span>Email</span><strong>{{ user[3] }}</strong></div>
+<main class="dashboard wrap">
+    <div class="dashboard-intro">
+        <div><div class="eyebrow">Workspace / Analyzer</div><h1>Find your fit.</h1></div>
+        <p class="muted big-text">Give ResumeIQ the job and your resume. It will turn both into a clear match report.</p>
+    </div>
+    {% with messages = get_flashed_messages() %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endwith %}
+    <div class="analyzer-grid">
+        <section class="panel">
+            <div class="panel-title"><h2>Job information</h2><span class="number">01</span></div>
+            <form method="post" enctype="multipart/form-data">
+                <div class="two-inputs">
+                    <div><label for="job_title">Job title</label><input id="job_title" name="job_title" placeholder="Python Developer" required></div>
+                    <div><label for="company">Company</label><input id="company" name="company" placeholder="Optional"></div>
                 </div>
-            </section>
-
-        {% else %}
-            <div class="dashboard-top">
-                <div><span class="kicker">AI Resume Analysis</span><h1>Analyze your fit.</h1><p class="subtitle">Give ResumeIQ the role and your resume. It handles the comparison.</p></div>
-            </div>
-            {% with messages = get_flashed_messages() %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endwith %}
-            <div class="analyzer-grid">
-                <section class="card">
-                    <div class="card-title"><h2>Job details</h2><span class="step">01</span></div>
-                    <form method="post" enctype="multipart/form-data">
-                        <div class="form-grid">
-                            <div><label for="job_title">Job Title</label><input id="job_title" name="job_title" placeholder="Python Developer" required></div>
-                            <div><label for="company">Company</label><input id="company" name="company" placeholder="Optional"></div>
-                        </div>
-                        <label for="seniority">Seniority</label>
-                        <select id="seniority" name="seniority"><option>Entry Level</option><option>Mid Level</option><option>Senior Level</option></select>
-                        <label for="job_description">Job Description</label>
-                        <textarea id="job_description" name="job_description" placeholder="Paste the job description here..." required></textarea>
-                        <div class="card-title mt-26"><h2>Resume</h2><span class="step">02</span></div>
-                        <div class="upload-box"><label for="resume">Upload PDF or DOCX</label><input id="resume" type="file" name="resume" accept=".pdf,.docx" required></div>
-                        <button type="submit">Analyze Resume</button>
-                    </form>
-                </section>
-                <aside class="card">
-                    <div class="card-title"><h2>Before you start</h2></div>
-                    <div class="tip"><strong>Use the exact job description</strong>The more complete the posting, the more useful the match analysis will be.</div>
-                    <div class="tip mt-12"><strong>Keep your resume readable</strong>Upload a text-based PDF or DOCX for the best extraction results.</div>
-                </aside>
-            </div>
-        {% endif %}
+                <label for="seniority">Seniority</label>
+                <select id="seniority" name="seniority"><option>Entry Level</option><option>Mid Level</option><option>Senior Level</option></select>
+                <label for="job_description">Job description</label>
+                <textarea id="job_description" name="job_description" placeholder="Paste the full job description here..." required></textarea>
+                <div class="panel-title" class="panel mt"><h2>Resume file</h2><span class="number">02</span></div>
+                <label for="resume">PDF or DOCX</label>
+                <input id="resume" type="file" name="resume" accept=".pdf,.docx" required>
+                <button class="full-button" type="submit">Run analysis</button>
+            </form>
+        </section>
+        <aside class="panel">
+            <div class="eyebrow">Quick guide</div>
+            <div class="tip"><strong>Use the full job post</strong><p>More context makes the comparison more useful.</p></div>
+            <div class="tip"><strong>Use a text resume</strong><p>PDF and DOCX files with selectable text work best.</p></div>
+            <div class="tip"><strong>Keep it real</strong><p>ResumeIQ highlights gaps; it does not invent experience.</p></div>
+        </aside>
     </div>
 </main>
 {% endblock %}
