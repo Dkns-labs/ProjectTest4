@@ -1,9 +1,5 @@
-requests>=2.32,<3
-Flask>=3.0,<4
-Werkzeug>=3.0,<4
-google-genai>=1.0
-pypdf>=5.0
-python-docx>=1.1
-serverless-wsgi>=3.0,<4
-
-gunicorn>=23,<24
+Flask
+gunicorn
+google-genai
+pypdf
+python-docx
