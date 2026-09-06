@@ -5,5 +5,7 @@ services:
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
     envVars:
+      - key: GEMINI_API_KEY
+        sync: false
       - key: SECRET_KEY
         generateValue: true
